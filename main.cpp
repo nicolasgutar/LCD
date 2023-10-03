@@ -18,8 +18,8 @@ UnbufferedSerial serial(USBTX, USBRX, 9600);
 // Objeto pa leer la matriz numerica
 TextLCD display(D2,D3,D4,D5,D6,D7,TextLCD::LCD16x2);
 
-DigitalIn filas[] = {D2, D3, D4, D5};
-DigitalOut columnas[] = {D6, D7, D8};
+DigitalIn filas[] = {D8, D9, D10, D11};
+DigitalOut columnas[] = {D12, D14, D15};
 
 using namespace std;
 
@@ -29,6 +29,12 @@ string teclado[][3] = {
     {"7", "8", "9"},
     {"*", "0", "#"}
 };
+
+void escribirLCD(char* s) {
+    display.printf(s);
+    wait_us(2000000);
+    display.cls();
+}
 
 string tecladoMatricial() {
     for (int i=0; i<3; i++) {
@@ -61,9 +67,7 @@ string escribir() {
                 cout << endl << input;
             } else {
                 input += tecla;
-                //display.printf(tecla);
                 cout << tecla << endl;
-                
             }
             cout.flush();
         }
@@ -76,59 +80,59 @@ string escribir() {
 
 void raices() {
     float CA,CB,CC;
-    display.cls();
     cout << "Dada la forma del polinomio AX^2 + BX + C" << endl;
     cout << "Introduzca el coeficiente A" << endl;
-    display.printf("Dada la forma del polinomio AX^2 + BX + C");
-    display.printf("Introduzca el coeficiente A");
+    escribirLCD("Polinomio AX^2 + BX + C");
+    escribirLCD("Coeficiente A: ");
     CA = stoi(escribir());
-    display.cls();
     cout << "Introduzca el coeficiente B" << endl;
-    display.printf("Introduzca el coeficiente B");
+    escribirLCD("Coeficiente B: ");
     CB = stoi(escribir());
-    display.cls();
     cout << "Introduzca el coeficiente C" << endl;
-    display.printf("Introduzca el coeficiente C");
+    escribirLCD("Coeficiente C: ");
     CC = stoi(escribir());
 
     float R1, R2;
     R2 = CB*CB - 4*CA*CC;
 
     if (R2 < 0){
-        display.printf("El polinomio no tiene raices reales");
+        escribirLCD("No tiene raices reales");
     } else {
         R1 = (-1*CB + sqrt(R2))/(2*CA);
         R2 = (-1*CB - sqrt(R2))/(2*CA);
         cout << "Raiz 1 = " << R1 << endl;
         cout << "Raiz 2 = " << R2 << endl;
+        string mensaje1 = "Raiz 1: "+to_string(R1);
+        escribirLCD(mensaje1.c_str());
+        string mensaje2 = "Raiz 2: "+to_string(R2);
+        escribirLCD(mensaje2.c_str());
     }
 }
 
 void calificacion() {
-    display.printf("Introduzca una nota del 0 al 10: ");
+    escribirLCD("Introduzca nota de 0-10: ");
     int nota = stoi(escribir());
     string calificacion;
     if (nota <= 3) {
-    calificacion = "A";
-  } else if (nota <= 4) {
-    calificacion = "B";
-  } else if (nota <= 5) {
-    calificacion = "C";
-  } else if (nota <= 7) {
-    calificacion = "D";
-  } else if (nota < 9) {
-    calificacion = "E";
-  } else if (nota <= 10) {
-    calificacion = "F";
-  } else {
-    calificacion = "La nota no es válida";
-  }
+        calificacion = "A";
+    } else if (nota <= 4) {
+        calificacion = "B";
+    } else if (nota <= 5) {
+        calificacion = "C";
+    } else if (nota <= 7) {
+        calificacion = "D";
+    } else if (nota < 9) {
+        calificacion = "E";
+    } else if (nota <= 10) {
+        calificacion = "F";
+    } else {
+        calificacion = "La nota no es válida";
+    }
 
-  // Imprime la calificación del estudiante.
-  display.cls();
-  display.printf("La nota es: ");
-  //display.printf(calificacion);
-  cout << calificacion << endl;
+    char resultado[32];
+    sprintf(resultado, "%s%s", "La nota es: ", calificacion.c_str());
+    escribirLCD(resultado);
+    cout << calificacion << endl;
 }
 
 void Leds() {
@@ -143,32 +147,26 @@ void Leds() {
     ledB.period(0.01);
     
     // Obtener los colores
-    display.cls();
-    display.printf("Introduzca la intensidad del rojo (R): ");
+    escribirLCD("Intensidad rojo (R):");
     float red = stoi(escribir());
 
     while (red>255) {
-        display.cls();
-        display.printf("Introduzca una intensidad dentro del rango (0-255): ");
+        escribirLCD("Rango (0-255): ");
         red = stoi(escribir());
     }
 
-    display.cls();
-    display.printf("Introduzca la intensidad del verde (G): ");
+    escribirLCD("Intensidad verde (G):");
     float green = stoi(escribir());
 
     while (green>255) {
-        display.cls();
-        display.printf("Introduzca una intensidad dentro del rango (0-255): ");
+        escribirLCD("Rango (0-255): ");
         green = stoi(escribir());
     }
-    display.cls();
-    display.printf("Introduzca la intensidad del azul (B): ");
+    escribirLCD("Intensidad azul (B):");
     float blue = stoi(escribir());
 
     while (blue>255) {
-        display.cls();
-        display.printf("Introduzca una intensidad dentro del rango (0-255): ");
+        escribirLCD("Rango (0-255): ");
         blue = stoi(escribir());
     }
 
@@ -185,21 +183,20 @@ void Leds() {
 
 void menu() {
     int opcion;
-    display.cls();
     cout << "Escoja opcion" << endl;
     cout << "1)raices" << endl;
     cout << "2)nota" << endl;
     cout << "3)LED con RGB" << endl;
-    display.printf("Escoja opcion");
-    display.printf("1)raices");
+    escribirLCD("Escoja opcion");
+    escribirLCD("1)raices");
     display.locate(0,1);
-    display.printf("2)nota");
-    display.printf("3)LED con RGB");
+    escribirLCD("2)nota");
+    escribirLCD("3)LED con RGB");
     opcion = stoi(escribir());
 
     while (opcion < 1 || opcion >3){
-        cout << "Ingrese una opcion valida" << endl;
-        display.printf("Ingrese una opcion valida");
+        cout << "Ingrese opcion valida" << endl;
+        escribirLCD("Ingrese opcion valida");
         opcion = stoi(escribir());
     }
 
@@ -218,6 +215,8 @@ int main() {
         cout << "Para dar enter oprimir *" << endl;
         cout << "Para eliminar oprimir #" << endl;
         cout << "-----------------------" << endl;
+        escribirLCD("Enter *");
+        escribirLCD("Eliminar #");
         menu();
         cout << endl << "===============================" << endl << endl;
     }
