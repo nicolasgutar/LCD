@@ -30,10 +30,10 @@ string teclado[][3] = {
     {"*", "0", "#"}
 };
 
-void escribirLCD(char* s) {
-    display.printf(s);
-    wait_us(2000000);
+void escribirLCD(string s) {
     display.cls();
+    display.printf("%s", s.c_str());
+    wait_us(2000000);
 }
 
 string tecladoMatricial() {
@@ -102,10 +102,8 @@ void raices() {
         R2 = (-1*CB - sqrt(R2))/(2*CA);
         cout << "Raiz 1 = " << R1 << endl;
         cout << "Raiz 2 = " << R2 << endl;
-        string mensaje1 = "Raiz 1: "+to_string(R1);
-        escribirLCD(mensaje1.c_str());
-        string mensaje2 = "Raiz 2: "+to_string(R2);
-        escribirLCD(mensaje2.c_str());
+        escribirLCD("Raiz 1 = "+to_string(R1));
+        escribirLCD("Raiz 2 = "+to_string(R2));
     }
 }
 
@@ -129,9 +127,7 @@ void calificacion() {
         calificacion = "La nota no es válida";
     }
 
-    char resultado[32];
-    sprintf(resultado, "%s%s", "La nota es: ", calificacion.c_str());
-    escribirLCD(resultado);
+    escribirLCD("La nota es: "+calificacion);
     cout << calificacion << endl;
 }
 
