@@ -8,127 +8,78 @@
 #include <iostream>
 #include <string>
 #include "TextLCD.h"
+#include "Teclado.h"
 
 // Blinking rate in milliseconds
 #define BLINKING_RATE     300ms
 
+using namespace std;
+
 // Objeto para establecer la comunicación serial con el Pc
 UnbufferedSerial serial(USBTX, USBRX, 9600);
-
 // Objeto pa leer la matriz numerica
 TextLCD display(D2,D3,D4,D5,D6,D7,TextLCD::LCD16x2);
 
-DigitalIn filas[] = {D2, D3, D4, D5};
-DigitalOut columnas[] = {D6, D7, D8};
+Teclado teclado;
 
-using namespace std;
 
-string teclado[][3] = {
-    {"1", "2", "3"},
-    {"4", "5", "6"},
-    {"7", "8", "9"},
-    {"*", "0", "#"}
-};
-
-string tecladoMatricial() {
-    for (int i=0; i<3; i++) {
-        columnas[i] = 0;
-
-        for (int j=0; j<4; j++) {
-            if (filas[j]==0) {
-                while (filas[j]==0);
-                columnas[i] = 1;
-                return teclado[j][i];
-            }
-        }
-
-        columnas[i] = 1;
-    }
-
-    return "";
-}
-
-string escribir() {
-    string tecla = "";
-    string input = "";
-
-    while (tecla!="*") {
-        tecla = tecladoMatricial();
-
-        if (tecla!="") {
-            if (tecla=="#") {
-                if (input.size()!=0) input.pop_back();
-                cout << endl << input;
-            } else {
-                input += tecla;
-                //display.printf(tecla);
-                cout << tecla << endl;
-                
-            }
-            cout.flush();
-        }
-    }
-    
-    cout << endl;
-
-    return input;
+void escribirLCD(string s) {
+    display.cls();
+    display.printf("%s", s.c_str());
+    wait_us(2000000);
 }
 
 void raices() {
     float CA,CB,CC;
-    display.cls();
     cout << "Dada la forma del polinomio AX^2 + BX + C" << endl;
     cout << "Introduzca el coeficiente A" << endl;
-    display.printf("Dada la forma del polinomio AX^2 + BX + C");
-    display.printf("Introduzca el coeficiente A");
-    CA = stoi(escribir());
-    display.cls();
+    escribirLCD("Polinomio AX^2 + BX + C");
+    escribirLCD("Coeficiente A: ");
+    CA = stoi(teclado.escribir());
     cout << "Introduzca el coeficiente B" << endl;
-    display.printf("Introduzca el coeficiente B");
-    CB = stoi(escribir());
-    display.cls();
+    escribirLCD("Coeficiente B: ");
+    CB = stoi(teclado.escribir());
     cout << "Introduzca el coeficiente C" << endl;
-    display.printf("Introduzca el coeficiente C");
-    CC = stoi(escribir());
+    escribirLCD("Coeficiente C: ");
+    CC = stoi(teclado.escribir());
 
     float R1, R2;
     R2 = CB*CB - 4*CA*CC;
 
     if (R2 < 0){
-        display.printf("El polinomio no tiene raices reales");
+        escribirLCD("No tiene raices reales");
     } else {
         R1 = (-1*CB + sqrt(R2))/(2*CA);
         R2 = (-1*CB - sqrt(R2))/(2*CA);
         cout << "Raiz 1 = " << R1 << endl;
         cout << "Raiz 2 = " << R2 << endl;
+        escribirLCD("Raiz 1 = "+to_string(R1));
+        escribirLCD("Raiz 2 = "+to_string(R2));
     }
 }
 
 void calificacion() {
-    display.printf("Introduzca una nota del 0 al 10: ");
-    int nota = stoi(escribir());
+    escribirLCD("Introduzca nota de 0-10: ");
+    int nota = stoi(teclado.escribir());
     string calificacion;
     if (nota <= 3) {
-    calificacion = "A";
-  } else if (nota <= 4) {
-    calificacion = "B";
-  } else if (nota <= 5) {
-    calificacion = "C";
-  } else if (nota <= 7) {
-    calificacion = "D";
-  } else if (nota < 9) {
-    calificacion = "E";
-  } else if (nota <= 10) {
-    calificacion = "F";
-  } else {
-    calificacion = "La nota no es válida";
-  }
+        calificacion = "A";
+    } else if (nota <= 4) {
+        calificacion = "B";
+    } else if (nota <= 5) {
+        calificacion = "C";
+    } else if (nota <= 7) {
+        calificacion = "D";
+    } else if (nota < 9) {
+        calificacion = "E";
+    } else if (nota <= 10) {
+        calificacion = "F";
+    } else {
+        calificacion = "La nota no es válida";
+    }
 
-  // Imprime la calificación del estudiante.
-  display.cls();
-  display.printf("La nota es: " + calificacion);
-  //display.printf(calificacion);
-  cout << calificacion << endl;
+    escribirLCD("La nota es: "+calificacion);
+    cout << calificacion << endl;
 }
 
 void Leds() {
@@ -143,33 +94,27 @@ void Leds() {
     ledB.period(0.01);
     
     // Obtener los colores
-    display.cls();
-    display.printf("Introduzca la intensidad del rojo (R): ");
-    float red = stoi(escribir());
+    escribirLCD("Intensidad rojo (R):");
+    float red = stoi(teclado.escribir());
 
     while (red>255) {
-        display.cls();
-        display.printf("Introduzca una intensidad dentro del rango (0-255): ");
-        red = stoi(escribir());
+        escribirLCD("Rango (0-255): ");
+        red = stoi(teclado.escribir());
     }
 
-    display.cls();
-    display.printf("Introduzca la intensidad del verde (G): ");
-    float green = stoi(escribir());
+    escribirLCD("Intensidad verde (G):");
+    float green = stoi(teclado.escribir());
 
     while (green>255) {
-        display.cls();
-        display.printf("Introduzca una intensidad dentro del rango (0-255): ");
-        green = stoi(escribir());
+        escribirLCD("Rango (0-255): ");
+        green = stoi(teclado.escribir());
     }
-    display.cls();
-    display.printf("Introduzca la intensidad del azul (B): ");
-    float blue = stoi(escribir());
+    escribirLCD("Intensidad azul (B):");
+    float blue = stoi(teclado.escribir());
 
     while (blue>255) {
-        display.cls();
-        display.printf("Introduzca una intensidad dentro del rango (0-255): ");
-        blue = stoi(escribir());
+        escribirLCD("Rango (0-255): ");
+        blue = stoi(teclado.escribir());
     }
 
     // Calcular valor de color
@@ -185,22 +130,21 @@ void Leds() {
 
 void menu() {
     int opcion;
-    display.cls();
     cout << "Escoja opcion" << endl;
     cout << "1)raices" << endl;
     cout << "2)nota" << endl;
     cout << "3)LED con RGB" << endl;
-    display.printf("Escoja opcion");
-    display.printf("1)raices");
+    escribirLCD("Escoja opcion");
+    escribirLCD("1)raices");
     display.locate(0,1);
-    display.printf("2)nota");
-    display.printf("3)LED con RGB");
-    opcion = stoi(escribir());
+    escribirLCD("2)nota");
+    escribirLCD("3)LED con RGB");
+    opcion = stoi(teclado.escribir());
 
     while (opcion < 1 || opcion >3){
-        cout << "Ingrese una opcion valida" << endl;
-        display.printf("Ingrese una opcion valida");
-        opcion = stoi(escribir());
+        cout << "Ingrese opcion valida" << endl;
+        escribirLCD("Ingrese opcion valida");
+        opcion = stoi(teclado.escribir());
     }
 
     if (opcion == 1){
@@ -218,6 +162,8 @@ int main() {
         cout << "Para dar enter oprimir *" << endl;
         cout << "Para eliminar oprimir #" << endl;
         cout << "-----------------------" << endl;
+        escribirLCD("Enter *");
+        escribirLCD("Eliminar #");
         menu();
         cout << endl << "===============================" << endl << endl;
     }
