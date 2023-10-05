@@ -126,7 +126,7 @@ void calificacion() {
 
   // Imprime la calificación del estudiante.
   display.cls();
-  display.printf("La nota es: ");
+  display.printf("La nota es: " + calificacion);
   //display.printf(calificacion);
   cout << calificacion << endl;
 }
