@@ -1,72 +1,43 @@
-![](./resources/official_armmbed_example_badge.png)
-# Blinky Mbed OS example
 
-The example project is part of the [Arm Mbed OS Official Examples](https://os.mbed.com/code/) and is the [getting started example for Mbed OS](https://os.mbed.com/docs/mbed-os/latest/quick-start/index.html). It contains an application that repeatedly blinks an LED on supported [Mbed boards](https://os.mbed.com/platforms/).
+Se conmienza importando las librerias e inicializando las conexiones como siempre.
 
-You can build the project with all supported [Mbed OS build tools](https://os.mbed.com/docs/mbed-os/latest/tools/index.html). However, this example project specifically refers to the command-line interface tool [Arm Mbed CLI](https://github.com/ARMmbed/mbed-cli#installing-mbed-cli).
-(Note: To see a rendered example you can import into the Arm Online Compiler, please see our [import quick start](https://os.mbed.com/docs/mbed-os/latest/quick-start/online-with-the-online-compiler.html#importing-the-code).)
+La librería del LCD tuvo que ser debugueada para que pudiera compilar, los tiempos con los que venia se 
+cambiaron de ms a us.
 
-## Mbed OS build tools
+#include "mbed.h"
+#include <iostream>
+#include <string>
+#include "TextLCD.h"
+#include "Teclado.h"
 
-### Mbed CLI 2
-Starting with version 6.5, Mbed OS uses Mbed CLI 2. It uses Ninja as a build system, and CMake to generate the build environment and manage the build process in a compiler-independent manner. If you are working with Mbed OS version prior to 6.5 then check the section [Mbed CLI 1](#mbed-cli-1).
-1. [Install Mbed CLI 2](https://os.mbed.com/docs/mbed-os/latest/build-tools/install-or-upgrade.html).
-1. From the command-line, import the example: `mbed-tools import mbed-os-example-blinky`
-1. Change the current directory to where the project was imported.
+// Blinking rate in milliseconds
+#define BLINKING_RATE     300ms
 
-### Mbed CLI 1
-1. [Install Mbed CLI 1](https://os.mbed.com/docs/mbed-os/latest/quick-start/offline-with-mbed-cli.html).
-1. From the command-line, import the example: `mbed import mbed-os-example-blinky`
-1. Change the current directory to where the project was imported.
+using namespace std;
 
-## Application functionality
+// Objeto para establecer la comunicación serial con el Pc
+UnbufferedSerial serial(USBTX, USBRX, 9600);
+// Objeto pa leer la matriz numerica
+TextLCD display(D2,D3,D4,D5,D6,D7,TextLCD::LCD16x2);
 
-The `main()` function is the single thread in the application. It toggles the state of a digital output connected to an LED on the board.
-
-**Note**: This example requires a target with RTOS support, i.e. one with `rtos` declared in `supported_application_profiles` in `targets/targets.json` in [mbed-os](https://github.com/ARMmbed/mbed-os). For non-RTOS targets (usually with small memory sizes), please use [mbed-os-example-blinky-baremetal](https://github.com/ARMmbed/mbed-os-example-blinky-baremetal) instead.
-
-## Building and running
-
-1. Connect a USB cable between the USB port on the board and the host computer.
-1. Run the following command to build the example project and program the microcontroller flash memory:
-
-    * Mbed CLI 2
-
-    ```bash
-    $ mbed-tools compile -m <TARGET> -t <TOOLCHAIN> --flash
-    ```
-
-    * Mbed CLI 1
-
-    ```bash
-    $ mbed compile -m <TARGET> -t <TOOLCHAIN> --flash
-    ```
-
-Your PC may take a few minutes to compile your code.
-
-The binary is located at:
-* **Mbed CLI 2** - `./cmake_build/mbed-os-example-blinky.bin`</br>
-* **Mbed CLI 1** - `./BUILD/<TARGET>/<TOOLCHAIN>/mbed-os-example-blinky.bin`
-
-Alternatively, you can manually copy the binary to the board, which you mount on the host computer over USB.
-
-## Expected output
-The LED on your target turns on and off every 500 milliseconds.
+Teclado teclado;
 
 
-## Troubleshooting
-If you have problems, you can review the [documentation](https://os.mbed.com/docs/latest/tutorials/debugging.html) for suggestions on what could be wrong and how to fix it.
+Lo unico que tuvimos que hacer de especial fue modificar los pines asignados al teclado y al LCD para que no tuvieran conflictos entre si.
 
-## Related Links
 
-* [Mbed OS Stats API](https://os.mbed.com/docs/latest/apis/mbed-statistics.html).
-* [Mbed OS Configuration](https://os.mbed.com/docs/latest/reference/configuration.html).
-* [Mbed OS Serial Communication](https://os.mbed.com/docs/latest/tutorials/serial-communication.html).
-* [Mbed OS bare metal](https://os.mbed.com/docs/mbed-os/latest/reference/mbed-os-bare-metal.html).
-* [Mbed boards](https://os.mbed.com/platforms/).
 
-### License and contributions
+Utilizando los metodos de la librería del LCD, desarrollamos el metodo escribirLCD() que limpia lo que haya en pantalla y muestra la cadena de texto
 
-The software is provided under Apache-2.0 license. Contributions to this project are accepted under the same license. Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for more info.
+Como se tenía un espacio mas restringido, tuvimos que adaptar lo que se tenía previamente para que fuera más corto. Además, dejamos que se muestre
+un par de segundos, suficiente para que el usuario lea el mensaje, y se muestre la parte restante.
 
-This project contains code from other projects. The original license text is included in those source files. They must comply with our license guide.
+void escribirLCD(string s) {
+    display.cls();
+    display.printf("%s", s.c_str());
+    wait_us(2000000);
+}
+
+
+De ahí para adelante el codigo es practicamente lo mismo que el del parcial. Simplemente se cambian los couts por escribirLCD() pues
+el funcionamiento es el mismo, simplemente se muestra en la pantallaLCD en vez de terminal
